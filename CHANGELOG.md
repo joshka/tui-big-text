@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.2](https://github.com/joshka/tui-big-text/releases/tag/0.2.2) - 2023-12-23
+## [0.3.0](https://github.com/joshka/tui-big-text/releases/tag/0.3.0) - 2023-12-23
 
 ### Documentation
 
