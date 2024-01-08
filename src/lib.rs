@@ -148,9 +148,9 @@ fn layout(
                 .map(move |x| {
                     let width = min(area.right() - x, width);
                     let height = min(area.bottom() - y, height);
-            Rect::new(x, y, width, height)
+                    Rect::new(x, y, width, height)
+                })
         })
-    })
 }
 
 /// Render a single grapheme into a cell by looking up the corresponding 8x8 bitmap in the
@@ -446,6 +446,367 @@ mod tests {
         expected.set_style(Rect::new(0, 0, 24, 8), Style::new().red());
         expected.set_style(Rect::new(0, 8, 40, 8), Style::new().green());
         expected.set_style(Rect::new(0, 16, 32, 8), Style::new().blue());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_height_single_line() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfHeight)
+            .lines(vec![Line::from("SingleLine")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 80, 4));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "▄█▀▀█▄    ▀▀                     ▀██            ▀██▀      ▀▀                    ",
+            "▀██▄     ▀██    ██▀▀█▄  ▄█▀▀▄█▀   ██    ▄█▀▀█▄   ██      ▀██    ██▀▀█▄  ▄█▀▀█▄  ",
+            "▄▄ ▀██    ██    ██  ██  ▀█▄▄██    ██    ██▀▀▀▀   ██  ▄█   ██    ██  ██  ██▀▀▀▀  ",
+            " ▀▀▀▀    ▀▀▀▀   ▀▀  ▀▀  ▄▄▄▄█▀   ▀▀▀▀    ▀▀▀▀   ▀▀▀▀▀▀▀  ▀▀▀▀   ▀▀  ▀▀   ▀▀▀▀   ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_height_truncated() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfHeight)
+            .lines(vec![Line::from("Truncated")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 70, 3));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "█▀██▀█                                            ▄█               ▀██",
+            "  ██    ▀█▄█▀█▄ ██  ██  ██▀▀█▄  ▄█▀▀█▄   ▀▀▀█▄   ▀██▀▀  ▄█▀▀█▄   ▄▄▄██",
+            "  ██     ██  ▀▀ ██  ██  ██  ██  ██  ▄▄  ▄█▀▀██    ██ ▄  ██▀▀▀▀  ██  ██",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_height_multiple_lines() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfHeight)
+            .lines(vec![Line::from("Multi"), Line::from("Lines")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 8));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "██▄ ▄██          ▀██      ▄█      ▀▀    ",
+            "███████ ██  ██    ██     ▀██▀▀   ▀██    ",
+            "██ ▀ ██ ██  ██    ██      ██ ▄    ██    ",
+            "▀▀   ▀▀  ▀▀▀ ▀▀  ▀▀▀▀      ▀▀    ▀▀▀▀   ",
+            "▀██▀      ▀▀                            ",
+            " ██      ▀██    ██▀▀█▄  ▄█▀▀█▄  ▄█▀▀▀▀  ",
+            " ██  ▄█   ██    ██  ██  ██▀▀▀▀   ▀▀▀█▄  ",
+            "▀▀▀▀▀▀▀  ▀▀▀▀   ▀▀  ▀▀   ▀▀▀▀   ▀▀▀▀▀   ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_height_widget_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfHeight)
+            .lines(vec![Line::from("Styled")])
+            .style(Style::new().bold())
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 48, 4));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "▄█▀▀█▄    ▄█             ▀██               ▀██  ",
+            "▀██▄     ▀██▀▀  ██  ██    ██    ▄█▀▀█▄   ▄▄▄██  ",
+            "▄▄ ▀██    ██ ▄  ▀█▄▄██    ██    ██▀▀▀▀  ██  ██  ",
+            " ▀▀▀▀      ▀▀   ▄▄▄▄█▀   ▀▀▀▀    ▀▀▀▀    ▀▀▀ ▀▀ ",
+        ]);
+        expected.set_style(Rect::new(0, 0, 48, 4), Style::new().bold());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_height_line_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfHeight)
+            .lines(vec![
+                Line::from("Red".red()),
+                Line::from("Green".green()),
+                Line::from("Blue".blue()),
+            ])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 12));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "▀██▀▀█▄            ▀██                  ",
+            " ██▄▄█▀ ▄█▀▀█▄   ▄▄▄██                  ",
+            " ██ ▀█▄ ██▀▀▀▀  ██  ██                  ",
+            "▀▀▀  ▀▀  ▀▀▀▀    ▀▀▀ ▀▀                 ",
+            " ▄█▀▀█▄                                 ",
+            "██      ▀█▄█▀█▄ ▄█▀▀█▄  ▄█▀▀█▄  ██▀▀█▄  ",
+            "▀█▄ ▀██  ██  ▀▀ ██▀▀▀▀  ██▀▀▀▀  ██  ██  ",
+            "  ▀▀▀▀▀ ▀▀▀▀     ▀▀▀▀    ▀▀▀▀   ▀▀  ▀▀  ",
+            "▀██▀▀█▄  ▀██                            ",
+            " ██▄▄█▀   ██    ██  ██  ▄█▀▀█▄          ",
+            " ██  ██   ██    ██  ██  ██▀▀▀▀          ",
+            "▀▀▀▀▀▀   ▀▀▀▀    ▀▀▀ ▀▀  ▀▀▀▀           ",
+        ]);
+        expected.set_style(Rect::new(0, 0, 24, 4), Style::new().red());
+        expected.set_style(Rect::new(0, 4, 40, 4), Style::new().green());
+        expected.set_style(Rect::new(0, 8, 32, 4), Style::new().blue());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_width_single_line() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfWidth)
+            .lines(vec![Line::from("SingleLine")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 8));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "▐█▌  █          ▐█      ██   █          ",
+            "█ █              █      ▐▌              ",
+            "█▌  ▐█  ██▌ ▐█▐▌ █  ▐█▌ ▐▌  ▐█  ██▌ ▐█▌ ",
+            "▐█   █  █ █ █ █  █  █ █ ▐▌   █  █ █ █ █ ",
+            " ▐█  █  █ █ █ █  █  ███ ▐▌ ▌ █  █ █ ███ ",
+            "█ █  █  █ █ ▐██  █  █   ▐▌▐▌ █  █ █ █   ",
+            "▐█▌ ▐█▌ █ █   █ ▐█▌ ▐█▌ ███▌▐█▌ █ █ ▐█▌ ",
+            "            ██▌                         ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_width_truncated() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfWidth)
+            .lines(vec![Line::from("Truncated")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 35, 6));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "███                      ▐       ▐█",
+            "▌█▐                      █        █",
+            " █  █▐█ █ █ ██▌ ▐█▌ ▐█▌ ▐██ ▐█▌   █",
+            " █  ▐█▐▌█ █ █ █ █ █   █  █  █ █ ▐██",
+            " █  ▐▌▐▌█ █ █ █ █   ▐██  █  ███ █ █",
+            " █  ▐▌  █ █ █ █ █ █ █ █  █▐ █   █ █",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_width_multiple_lines() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfWidth)
+            .lines(vec![Line::from("Multi"), Line::from("Lines")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 20, 16));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "█ ▐▌    ▐█   ▐   █  ",
+            "█▌█▌     █   █      ",
+            "███▌█ █  █  ▐██ ▐█  ",
+            "███▌█ █  █   █   █  ",
+            "█▐▐▌█ █  █   █   █  ",
+            "█ ▐▌█ █  █   █▐  █  ",
+            "█ ▐▌▐█▐▌▐█▌  ▐▌ ▐█▌ ",
+            "                    ",
+            "██   █              ",
+            "▐▌                  ",
+            "▐▌  ▐█  ██▌ ▐█▌ ▐██ ",
+            "▐▌   █  █ █ █ █ █   ",
+            "▐▌ ▌ █  █ █ ███ ▐█▌ ",
+            "▐▌▐▌ █  █ █ █     █ ",
+            "███▌▐█▌ █ █ ▐█▌ ██▌ ",
+            "                    ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_width_widget_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfWidth)
+            .lines(vec![Line::from("Styled")])
+            .style(Style::new().bold())
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 24, 8));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "▐█▌  ▐      ▐█       ▐█ ",
+            "█ █  █       █        █ ",
+            "█▌  ▐██ █ █  █  ▐█▌   █ ",
+            "▐█   █  █ █  █  █ █ ▐██ ",
+            " ▐█  █  █ █  █  ███ █ █ ",
+            "█ █  █▐ ▐██  █  █   █ █ ",
+            "▐█▌  ▐▌   █ ▐█▌ ▐█▌ ▐█▐▌",
+            "        ██▌             ",
+        ]);
+        expected.set_style(Rect::new(0, 0, 24, 8), Style::new().bold());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_width_line_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::HalfWidth)
+            .lines(vec![
+                Line::from("Red".red()),
+                Line::from("Green".green()),
+                Line::from("Blue".blue()),
+            ])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 20, 24));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "███      ▐█         ",
+            "▐▌▐▌      █         ",
+            "▐▌▐▌▐█▌   █         ",
+            "▐██ █ █ ▐██         ",
+            "▐▌█ ███ █ █         ",
+            "▐▌▐▌█   █ █         ",
+            "█▌▐▌▐█▌ ▐█▐▌        ",
+            "                    ",
+            " ██                 ",
+            "▐▌▐▌                ",
+            "█   █▐█ ▐█▌ ▐█▌ ██▌ ",
+            "█   ▐█▐▌█ █ █ █ █ █ ",
+            "█ █▌▐▌▐▌███ ███ █ █ ",
+            "▐▌▐▌▐▌  █   █   █ █ ",
+            " ██▌██  ▐█▌ ▐█▌ █ █ ",
+            "                    ",
+            "███ ▐█              ",
+            "▐▌▐▌ █              ",
+            "▐▌▐▌ █  █ █ ▐█▌     ",
+            "▐██  █  █ █ █ █     ",
+            "▐▌▐▌ █  █ █ ███     ",
+            "▐▌▐▌ █  █ █ █       ",
+            "███ ▐█▌ ▐█▐▌▐█▌     ",
+            "                    ",
+        ]);
+        expected.set_style(Rect::new(0, 0, 12, 8), Style::new().red());
+        expected.set_style(Rect::new(0, 8, 20, 8), Style::new().green());
+        expected.set_style(Rect::new(0, 16, 16, 8), Style::new().blue());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_size_single_line() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::Half)
+            .lines(vec![Line::from("SingleLine")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 4));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "▟▀▙  ▀          ▝█      ▜▛   ▀          ",
+            "▜▙  ▝█  █▀▙ ▟▀▟▘ █  ▟▀▙ ▐▌  ▝█  █▀▙ ▟▀▙ ",
+            "▄▝█  █  █ █ ▜▄█  █  █▀▀ ▐▌▗▌ █  █ █ █▀▀ ",
+            "▝▀▘ ▝▀▘ ▀ ▀ ▄▄▛ ▝▀▘ ▝▀▘ ▀▀▀▘▝▀▘ ▀ ▀ ▝▀▘ ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_size_truncated() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::Half)
+            .lines(vec![Line::from("Truncated")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 35, 3));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "▛█▜                      ▟       ▝█",
+            " █  ▜▟▜▖█ █ █▀▙ ▟▀▙ ▝▀▙ ▝█▀ ▟▀▙ ▗▄█",
+            " █  ▐▌▝▘█ █ █ █ █ ▄ ▟▀█  █▗ █▀▀ █ █",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_size_multiple_lines() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::Half)
+            .lines(vec![Line::from("Multi"), Line::from("Lines")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 20, 8));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "█▖▟▌    ▝█   ▟   ▀  ",
+            "███▌█ █  █  ▝█▀ ▝█  ",
+            "█▝▐▌█ █  █   █▗  █  ",
+            "▀ ▝▘▝▀▝▘▝▀▘  ▝▘ ▝▀▘ ",
+            "▜▛   ▀              ",
+            "▐▌  ▝█  █▀▙ ▟▀▙ ▟▀▀ ",
+            "▐▌▗▌ █  █ █ █▀▀ ▝▀▙ ",
+            "▀▀▀▘▝▀▘ ▀ ▀ ▝▀▘ ▀▀▘ ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_size_widget_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::Half)
+            .lines(vec![Line::from("Styled")])
+            .style(Style::new().bold())
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 24, 4));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "▟▀▙  ▟      ▝█       ▝█ ",
+            "▜▙  ▝█▀ █ █  █  ▟▀▙ ▗▄█ ",
+            "▄▝█  █▗ ▜▄█  █  █▀▀ █ █ ",
+            "▝▀▘  ▝▘ ▄▄▛ ▝▀▘ ▝▀▘ ▝▀▝▘",
+        ]);
+        expected.set_style(Rect::new(0, 0, 24, 4), Style::new().bold());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_half_size_line_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .font_size(BigTextSize::Half)
+            .lines(vec![
+                Line::from("Red".red()),
+                Line::from("Green".green()),
+                Line::from("Blue".blue()),
+            ])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 20, 12));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "▜▛▜▖     ▝█         ",
+            "▐▙▟▘▟▀▙ ▗▄█         ",
+            "▐▌▜▖█▀▀ █ █         ",
+            "▀▘▝▘▝▀▘ ▝▀▝▘        ",
+            "▗▛▜▖                ",
+            "█   ▜▟▜▖▟▀▙ ▟▀▙ █▀▙ ",
+            "▜▖▜▌▐▌▝▘█▀▀ █▀▀ █ █ ",
+            " ▀▀▘▀▀  ▝▀▘ ▝▀▘ ▀ ▀ ",
+            "▜▛▜▖▝█              ",
+            "▐▙▟▘ █  █ █ ▟▀▙     ",
+            "▐▌▐▌ █  █ █ █▀▀     ",
+            "▀▀▀ ▝▀▘ ▝▀▝▘▝▀▘     ",
+        ]);
+        expected.set_style(Rect::new(0, 0, 12, 4), Style::new().red());
+        expected.set_style(Rect::new(0, 4, 20, 4), Style::new().green());
+        expected.set_style(Rect::new(0, 8, 16, 4), Style::new().blue());
         assert_buffer_eq!(buf, expected);
         Ok(())
     }
