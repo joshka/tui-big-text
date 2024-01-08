@@ -37,17 +37,13 @@ use derive_builder::Builder;
 use font8x8::UnicodeFonts;
 use ratatui::{prelude::*, text::StyledGrapheme, widgets::Widget};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 pub enum BigTextSize {
+    #[default]
     Full,
     HalfHeight,
     HalfWidth,
     Half,
-}
-impl Default for BigTextSize {
-    fn default() -> BigTextSize {
-        BigTextSize::Full
-    }
 }
 
 /// Displays one or more lines of text using 8x8 pixel characters.
@@ -260,25 +256,25 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, font_size: &BigTex
         {
             let cell = buf.get_mut(x, y);
             let symbol = match font_size {
-                BigTextSize::Full => match glyph[row as usize] & (1 << col) {
+                BigTextSize::Full => match glyph[row] & (1 << col) {
                     0 => " ",
                     _ => "█",
                 },
                 BigTextSize::HalfHeight => {
-                    let top = glyph[row as usize] & (1 << col);
-                    let bottom = glyph[(row + 1) as usize] & (1 << col);
+                    let top = glyph[row] & (1 << col);
+                    let bottom = glyph[(row + 1)] & (1 << col);
                     get_symbol_half_height(top, bottom)
                 }
                 BigTextSize::HalfWidth => {
-                    let left = glyph[row as usize] & (1 << col);
-                    let right = glyph[row as usize] & (1 << (col + 1));
+                    let left = glyph[row] & (1 << col);
+                    let right = glyph[row] & (1 << (col + 1));
                     get_symbol_half_width(left, right)
                 }
                 BigTextSize::Half => {
-                    let top_left = glyph[row as usize] & (1 << col);
-                    let top_right = glyph[row as usize] & (1 << (col + 1));
-                    let bottom_left = glyph[(row + 1) as usize] & (1 << col);
-                    let bottom_right = glyph[(row + 1) as usize] & (1 << (col + 1));
+                    let top_left = glyph[row] & (1 << col);
+                    let top_right = glyph[row] & (1 << (col + 1));
+                    let bottom_left = glyph[(row + 1)] & (1 << col);
+                    let bottom_right = glyph[(row + 1)] & (1 << (col + 1));
                     get_symbol_half_size(top_left, top_right, bottom_left, bottom_right)
                 }
             };
