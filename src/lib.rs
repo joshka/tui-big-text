@@ -299,12 +299,17 @@ mod tests {
     fn build() -> Result<()> {
         let lines = vec![Line::from(vec!["Hello".red(), "World".blue()])];
         let style = Style::new().green();
+        let font_size = BigTextSize::default();
         assert_eq!(
             BigTextBuilder::default()
                 .lines(lines.clone())
                 .style(style)
                 .build()?,
-            BigText { lines, style }
+            BigText {
+                lines,
+                style,
+                font_size
+            }
         );
         Ok(())
     }
