@@ -806,4 +806,12 @@ mod tests {
         assert_buffer_eq!(buf, expected);
         Ok(())
     }
+
+    #[test]
+    fn get_symbol_half_size_uncovered_symbols() -> Result<()> {
+        // This test is used to reach 100% code coverage as the two symbols are not used by the tests above
+        assert_eq!(get_symbol_half_size(1, 0, 0, 1), "▚");
+        assert_eq!(get_symbol_half_size(0, 1, 1, 0), "▞");
+        Ok(())
+    }
 }
