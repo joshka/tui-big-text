@@ -262,7 +262,7 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, font_size: &BigTex
                 },
                 BigTextSize::HalfHeight => {
                     let top = glyph[row] & (1 << col);
-                    let bottom = glyph[(row + 1)] & (1 << col);
+                    let bottom = glyph[row + 1] & (1 << col);
                     get_symbol_half_height(top, bottom)
                 }
                 BigTextSize::HalfWidth => {
@@ -273,8 +273,8 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, font_size: &BigTex
                 BigTextSize::Half => {
                     let top_left = glyph[row] & (1 << col);
                     let top_right = glyph[row] & (1 << (col + 1));
-                    let bottom_left = glyph[(row + 1)] & (1 << col);
-                    let bottom_right = glyph[(row + 1)] & (1 << (col + 1));
+                    let bottom_left = glyph[row + 1] & (1 << col);
+                    let bottom_right = glyph[row + 1] & (1 << (col + 1));
                     get_symbol_half_size(top_left, top_right, bottom_left, bottom_right)
                 }
             };
