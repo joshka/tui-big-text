@@ -104,15 +104,15 @@ pub struct BigText<'a> {
     ///
     /// Defaults to `BigTextSize::default()` (=> BigTextSize::Full)
     #[builder(default)]
-    font_size: PixelSize,
+    pixel_size: PixelSize,
 }
 
 impl Widget for BigText<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let layout = layout(area, &self.font_size);
+        let layout = layout(area, &self.pixel_size);
         for (line, line_layout) in self.lines.iter().zip(layout) {
             for (g, cell) in line.styled_graphemes(self.style).zip(line_layout) {
-                render_symbol(g, cell, buf, &self.font_size);
+                render_symbol(g, cell, buf, &self.pixel_size);
             }
         }
     }
@@ -133,9 +133,9 @@ fn cells_per_glyph(size: &PixelSize) -> (u16, u16) {
 /// The size of each cell depends on given font size
 fn layout(
     area: Rect,
-    font_size: &PixelSize,
+    pixel_size: &PixelSize,
 ) -> impl IntoIterator<Item = impl IntoIterator<Item = Rect>> {
-    let (width, height) = cells_per_glyph(font_size);
+    let (width, height) = cells_per_glyph(pixel_size);
     (area.top()..area.bottom())
         .step_by(height as usize)
         .map(move |y| {
@@ -151,11 +151,11 @@ fn layout(
 
 /// Render a single grapheme into a cell by looking up the corresponding 8x8 bitmap in the
 /// `BITMAPS` array and setting the corresponding cells in the buffer.
-fn render_symbol(grapheme: StyledGrapheme, area: Rect, buf: &mut Buffer, font_size: &PixelSize) {
+fn render_symbol(grapheme: StyledGrapheme, area: Rect, buf: &mut Buffer, pixel_size: &PixelSize) {
     buf.set_style(area, grapheme.style);
     let c = grapheme.symbol.chars().next().unwrap(); // TODO: handle multi-char graphemes
     if let Some(glyph) = font8x8::BASIC_FONTS.get(c) {
-        render_glyph(glyph, area, buf, font_size);
+        render_glyph(glyph, area, buf, pixel_size);
     }
 }
 
@@ -201,8 +201,8 @@ fn get_symbol_half_size(top_left: u8, top_right: u8, bottom_left: u8, bottom_rig
 }
 
 /// Render a single 8x8 glyph into a cell by setting the corresponding cells in the buffer.
-fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, font_size: &PixelSize) {
-    let (width, height) = cells_per_glyph(font_size);
+fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, pixel_size: &PixelSize) {
+    let (width, height) = cells_per_glyph(pixel_size);
 
     let glyph_vertical_index = (0..glyph.len()).step_by(8 / height as usize);
     let glyph_horizontal_bit_selector = (0..8).step_by(8 / width as usize);
@@ -213,7 +213,7 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, font_size: &PixelS
             .zip(area.left()..area.right())
         {
             let cell = buf.get_mut(x, y);
-            let symbol_character = match font_size {
+            let symbol_character = match pixel_size {
                 PixelSize::Full => match glyph[row] & (1 << col) {
                     0 => ' ',
                     _ => '█',
@@ -253,7 +253,7 @@ mod tests {
     fn build() -> Result<()> {
         let lines = vec![Line::from(vec!["Hello".red(), "World".blue()])];
         let style = Style::new().green();
-        let font_size = PixelSize::default();
+        let pixel_size = PixelSize::default();
         assert_eq!(
             BigTextBuilder::default()
                 .lines(lines.clone())
@@ -262,7 +262,7 @@ mod tests {
             BigText {
                 lines,
                 style,
-                font_size
+                pixel_size
             }
         );
         Ok(())
@@ -407,7 +407,7 @@ mod tests {
     #[test]
     fn render_half_height_single_line() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfHeight)
+            .pixel_size(PixelSize::HalfHeight)
             .lines(vec![Line::from("SingleLine")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 80, 4));
@@ -425,7 +425,7 @@ mod tests {
     #[test]
     fn render_half_height_truncated() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfHeight)
+            .pixel_size(PixelSize::HalfHeight)
             .lines(vec![Line::from("Truncated")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 70, 3));
@@ -442,7 +442,7 @@ mod tests {
     #[test]
     fn render_half_height_multiple_lines() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfHeight)
+            .pixel_size(PixelSize::HalfHeight)
             .lines(vec![Line::from("Multi"), Line::from("Lines")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 40, 8));
@@ -464,7 +464,7 @@ mod tests {
     #[test]
     fn render_half_height_widget_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfHeight)
+            .pixel_size(PixelSize::HalfHeight)
             .lines(vec![Line::from("Styled")])
             .style(Style::new().bold())
             .build()?;
@@ -484,7 +484,7 @@ mod tests {
     #[test]
     fn render_half_height_line_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfHeight)
+            .pixel_size(PixelSize::HalfHeight)
             .lines(vec![
                 Line::from("Red".red()),
                 Line::from("Green".green()),
@@ -517,7 +517,7 @@ mod tests {
     #[test]
     fn render_half_width_single_line() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfWidth)
+            .pixel_size(PixelSize::HalfWidth)
             .lines(vec![Line::from("SingleLine")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 40, 8));
@@ -539,7 +539,7 @@ mod tests {
     #[test]
     fn render_half_width_truncated() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfWidth)
+            .pixel_size(PixelSize::HalfWidth)
             .lines(vec![Line::from("Truncated")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 35, 6));
@@ -559,7 +559,7 @@ mod tests {
     #[test]
     fn render_half_width_multiple_lines() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfWidth)
+            .pixel_size(PixelSize::HalfWidth)
             .lines(vec![Line::from("Multi"), Line::from("Lines")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 20, 16));
@@ -589,7 +589,7 @@ mod tests {
     #[test]
     fn render_half_width_widget_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfWidth)
+            .pixel_size(PixelSize::HalfWidth)
             .lines(vec![Line::from("Styled")])
             .style(Style::new().bold())
             .build()?;
@@ -613,7 +613,7 @@ mod tests {
     #[test]
     fn render_half_width_line_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::HalfWidth)
+            .pixel_size(PixelSize::HalfWidth)
             .lines(vec![
                 Line::from("Red".red()),
                 Line::from("Green".green()),
@@ -679,7 +679,7 @@ mod tests {
     #[test]
     fn render_half_size_single_line() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::Half)
+            .pixel_size(PixelSize::Half)
             .lines(vec![Line::from("SingleLine")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 40, 4));
@@ -697,7 +697,7 @@ mod tests {
     #[test]
     fn render_half_size_truncated() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::Half)
+            .pixel_size(PixelSize::Half)
             .lines(vec![Line::from("Truncated")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 35, 3));
@@ -714,7 +714,7 @@ mod tests {
     #[test]
     fn render_half_size_multiple_lines() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::Half)
+            .pixel_size(PixelSize::Half)
             .lines(vec![Line::from("Multi"), Line::from("Lines")])
             .build()?;
         let mut buf = Buffer::empty(Rect::new(0, 0, 20, 8));
@@ -736,7 +736,7 @@ mod tests {
     #[test]
     fn render_half_size_widget_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::Half)
+            .pixel_size(PixelSize::Half)
             .lines(vec![Line::from("Styled")])
             .style(Style::new().bold())
             .build()?;
@@ -756,7 +756,7 @@ mod tests {
     #[test]
     fn render_half_size_line_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
-            .font_size(PixelSize::Half)
+            .pixel_size(PixelSize::Half)
             .lines(vec![
                 Line::from("Red".red()),
                 Line::from("Green".green()),
