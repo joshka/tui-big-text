@@ -160,86 +160,44 @@ fn render_symbol(grapheme: StyledGrapheme, area: Rect, buf: &mut Buffer, font_si
 }
 
 /// Get the correct unicode symbol for two vertical "pixels"
-fn get_symbol_half_height(top: u8, bottom: u8) -> &'static str {
+fn get_symbol_half_height(top: u8, bottom: u8) -> char {
     match top {
         0 => match bottom {
-            0 => " ",
-            _ => "▄",
+            0 => ' ',
+            _ => '▄',
         },
         _ => match bottom {
-            0 => "▀",
-            _ => "█",
+            0 => '▀',
+            _ => '█',
         },
     }
 }
 
 /// Get the correct unicode symbol for two horizontal "pixels"
-fn get_symbol_half_width(left: u8, right: u8) -> &'static str {
+fn get_symbol_half_width(left: u8, right: u8) -> char {
     match left {
         0 => match right {
-            0 => " ",
-            _ => "▐",
+            0 => ' ',
+            _ => '▐',
         },
         _ => match right {
-            0 => "▌",
-            _ => "█",
+            0 => '▌',
+            _ => '█',
         },
     }
 }
 
 /// Get the correct unicode symbol for 2x2 "pixels"
-fn get_symbol_half_size(
-    top_left: u8,
-    top_right: u8,
-    bottom_left: u8,
-    bottom_right: u8,
-) -> &'static str {
-    match top_left {
-        0 => match top_right {
-            0 => match bottom_left {
-                0 => match bottom_right {
-                    0 => " ",
-                    _ => "▗",
-                },
-                _ => match bottom_right {
-                    0 => "▖",
-                    _ => "▄",
-                },
-            },
-            _ => match bottom_left {
-                0 => match bottom_right {
-                    0 => "▝",
-                    _ => "▐",
-                },
-                _ => match bottom_right {
-                    0 => "▞",
-                    _ => "▟",
-                },
-            },
-        },
-        _ => match top_right {
-            0 => match bottom_left {
-                0 => match bottom_right {
-                    0 => "▘",
-                    _ => "▚",
-                },
-                _ => match bottom_right {
-                    0 => "▌",
-                    _ => "▙",
-                },
-            },
-            _ => match bottom_left {
-                0 => match bottom_right {
-                    0 => "▀",
-                    _ => "▜",
-                },
-                _ => match bottom_right {
-                    0 => "▛",
-                    _ => "█",
-                },
-            },
-        },
-    }
+fn get_symbol_half_size(top_left: u8, top_right: u8, bottom_left: u8, bottom_right: u8) -> char {
+    let top_left = if top_left > 0 { 1 } else { 0 };
+    let top_right = if top_right > 0 { 1 } else { 0 };
+    let bottom_left = if bottom_left > 0 { 1 } else { 0 };
+    let bottom_right = if bottom_right > 0 { 1 } else { 0 };
+
+    const QUADRANT_SYMBOLS: [char; 16] = [
+        ' ', '▘', '▝', '▀', '▖', '▌', '▞', '▛', '▗', '▚', '▐', '▜', '▄', '▙', '▟', '█',
+    ];
+    QUADRANT_SYMBOLS[top_left + (top_right << 1) + (bottom_left << 2) + (bottom_right << 3)]
 }
 
 /// Render a single 8x8 glyph into a cell by setting the corresponding cells in the buffer.
@@ -255,10 +213,10 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, font_size: &PixelS
             .zip(area.left()..area.right())
         {
             let cell = buf.get_mut(x, y);
-            let symbol = match font_size {
+            let symbol_character = match font_size {
                 PixelSize::Full => match glyph[row] & (1 << col) {
-                    0 => " ",
-                    _ => "█",
+                    0 => ' ',
+                    _ => '█',
                 },
                 PixelSize::HalfHeight => {
                     let top = glyph[row] & (1 << col);
@@ -278,7 +236,7 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, font_size: &PixelS
                     get_symbol_half_size(top_left, top_right, bottom_left, bottom_right)
                 }
             };
-            cell.set_symbol(symbol);
+            cell.set_char(symbol_character);
         }
     }
 }
@@ -698,6 +656,27 @@ mod tests {
     }
 
     #[test]
+    fn check_half_size_symbols() -> Result<()> {
+        assert_eq!(get_symbol_half_size(0, 0, 0, 0), ' ');
+        assert_eq!(get_symbol_half_size(1, 0, 0, 0), '▘');
+        assert_eq!(get_symbol_half_size(0, 1, 0, 0), '▝');
+        assert_eq!(get_symbol_half_size(1, 1, 0, 0), '▀');
+        assert_eq!(get_symbol_half_size(0, 0, 1, 0), '▖');
+        assert_eq!(get_symbol_half_size(1, 0, 1, 0), '▌');
+        assert_eq!(get_symbol_half_size(0, 1, 1, 0), '▞');
+        assert_eq!(get_symbol_half_size(1, 1, 1, 0), '▛');
+        assert_eq!(get_symbol_half_size(0, 0, 0, 1), '▗');
+        assert_eq!(get_symbol_half_size(1, 0, 0, 1), '▚');
+        assert_eq!(get_symbol_half_size(0, 1, 0, 1), '▐');
+        assert_eq!(get_symbol_half_size(1, 1, 0, 1), '▜');
+        assert_eq!(get_symbol_half_size(0, 0, 1, 1), '▄');
+        assert_eq!(get_symbol_half_size(1, 0, 1, 1), '▙');
+        assert_eq!(get_symbol_half_size(0, 1, 1, 1), '▟');
+        assert_eq!(get_symbol_half_size(1, 1, 1, 1), '█');
+        Ok(())
+    }
+
+    #[test]
     fn render_half_size_single_line() -> Result<()> {
         let big_text = BigTextBuilder::default()
             .font_size(PixelSize::Half)
@@ -804,14 +783,6 @@ mod tests {
         expected.set_style(Rect::new(0, 4, 20, 4), Style::new().green());
         expected.set_style(Rect::new(0, 8, 16, 4), Style::new().blue());
         assert_buffer_eq!(buf, expected);
-        Ok(())
-    }
-
-    #[test]
-    fn get_symbol_half_size_uncovered_symbols() -> Result<()> {
-        // This test is used to reach 100% code coverage as the two symbols are not used by the tests above
-        assert_eq!(get_symbol_half_size(1, 0, 0, 1), "▚");
-        assert_eq!(get_symbol_half_size(0, 1, 1, 0), "▞");
         Ok(())
     }
 }
