@@ -18,7 +18,7 @@ fn main() -> Result<()> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
     terminal.draw(|frame| render(frame).expect("failed to render"))?;
-    sleep(Duration::from_secs(25));
+    sleep(Duration::from_secs(5));
     terminal.clear()?;
     stdout().execute(LeaveAlternateScreen)?;
     disable_raw_mode()?;
