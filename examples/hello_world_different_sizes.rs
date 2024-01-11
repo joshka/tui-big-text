@@ -40,7 +40,7 @@ fn render(frame: &mut Frame) -> Result<()> {
     {
         // Draw block showing Full size
         let big_text_full = BigTextBuilder::default()
-            .font_size(tui_big_text::BigTextSize::Full)
+            .font_size(tui_big_text::PixelSize::Full)
             .style(Style::new().blue())
             .lines(vec![
                 "Hello".red().into(),
@@ -54,7 +54,7 @@ fn render(frame: &mut Frame) -> Result<()> {
     {
         // Draw block showing HalfWidth size
         let big_text_half_width = BigTextBuilder::default()
-            .font_size(tui_big_text::BigTextSize::HalfWidth)
+            .font_size(tui_big_text::PixelSize::HalfWidth)
             .style(Style::new().blue())
             .lines(vec![
                 "Hello".red().into(),
@@ -68,7 +68,7 @@ fn render(frame: &mut Frame) -> Result<()> {
     {
         // Draw block showing HalfHeight size
         let big_text_half_height = BigTextBuilder::default()
-            .font_size(tui_big_text::BigTextSize::HalfHeight)
+            .font_size(tui_big_text::PixelSize::HalfHeight)
             .style(Style::new().blue())
             .lines(vec![
                 "Hello".red().into(),
@@ -82,7 +82,7 @@ fn render(frame: &mut Frame) -> Result<()> {
     {
         // Draw block showing Half size
         let big_text_half_size = BigTextBuilder::default()
-            .font_size(tui_big_text::BigTextSize::Half)
+            .font_size(tui_big_text::PixelSize::Half)
             .style(Style::new().blue())
             .lines(vec![
                 "Hello".red().into(),
