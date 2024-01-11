@@ -52,20 +52,6 @@ fn render(frame: &mut Frame) -> Result<()> {
     }
 
     {
-        // Draw block showing HalfHeight size
-        let big_text_half_height = BigTextBuilder::default()
-            .font_size(tui_big_text::BigTextSize::HalfHeight)
-            .style(Style::new().blue())
-            .lines(vec![
-                "Hello".red().into(),
-                "World".white().into(),
-                "~~~~~".into(),
-            ])
-            .build()?;
-        frame.render_widget(big_text_half_height, inner_layout_top[1]);
-    }
-
-    {
         // Draw block showing HalfWidth size
         let big_text_half_width = BigTextBuilder::default()
             .font_size(tui_big_text::BigTextSize::HalfWidth)
@@ -76,7 +62,21 @@ fn render(frame: &mut Frame) -> Result<()> {
                 "~~~~~".into(),
             ])
             .build()?;
-        frame.render_widget(big_text_half_width, inner_layout_bottom[0]);
+        frame.render_widget(big_text_half_width, inner_layout_top[1]);
+    }
+
+    {
+        // Draw block showing HalfHeight size
+        let big_text_half_height = BigTextBuilder::default()
+            .font_size(tui_big_text::BigTextSize::HalfHeight)
+            .style(Style::new().blue())
+            .lines(vec![
+                "Hello".red().into(),
+                "World".white().into(),
+                "~~~~~".into(),
+            ])
+            .build()?;
+        frame.render_widget(big_text_half_height, inner_layout_bottom[0]);
     }
 
     {
