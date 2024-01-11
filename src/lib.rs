@@ -15,7 +15,7 @@
 //! ```rust
 //! use anyhow::Result;
 //! use ratatui::prelude::*;
-//! use tui_big_text::BigTextBuilder;
+//! use tui_big_text::{BigTextBuilder, PixelSize};
 //!
 //! fn render(frame: &mut Frame) -> Result<()> {
 //!     let big_text = BigTextBuilder::default()
@@ -62,7 +62,7 @@ pub enum PixelSize {
 ///
 /// ```rust
 /// use ratatui::prelude::*;
-/// use tui_big_text::BigTextBuilder;
+/// use tui_big_text::{BigTextBuilder, PixelSize};
 ///
 /// BigTextBuilder::default()
 ///     .pixel_size(PixelSize::Full)
