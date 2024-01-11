@@ -27,20 +27,14 @@ fn main() -> Result<()> {
 
 fn render(frame: &mut Frame) -> Result<()> {
     // Setup layout for 4 blocks
-    let outer_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-        .split(frame.size());
+    let outer_layout =
+        Layout::new(Direction::Vertical, [Constraint::Ratio(1, 2); 2]).split(frame.size());
 
-    let inner_layout_top = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-        .split(outer_layout[0]);
+    let inner_layout_top =
+        Layout::new(Direction::Horizontal, [Constraint::Ratio(1, 2); 2]).split(outer_layout[0]);
 
-    let inner_layout_bottom = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-        .split(outer_layout[1]);
+    let inner_layout_bottom =
+        Layout::new(Direction::Horizontal, [Constraint::Ratio(1, 2); 2]).split(outer_layout[1]);
 
     // render one block for each font size
     {
