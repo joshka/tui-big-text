@@ -39,9 +39,6 @@ fn render(frame: &mut Frame) -> Result<()> {
     // render one block for each font size
     {
         // Draw block showing Full size
-        let block_full = Block::new()
-            .borders(Borders::ALL)
-            .title(" BigTextSize::Full ");
         let big_text_full = BigTextBuilder::default()
             .font_size(tui_big_text::BigTextSize::Full)
             .style(Style::new().blue())
@@ -51,16 +48,11 @@ fn render(frame: &mut Frame) -> Result<()> {
                 "~~~~~".into(),
             ])
             .build()?;
-        let text_area = block_full.inner(inner_layout_top[0]);
-        frame.render_widget(block_full, inner_layout_top[0]);
-        frame.render_widget(big_text_full, text_area);
+        frame.render_widget(big_text_full, inner_layout_top[0]);
     }
 
     {
         // Draw block showing HalfHeight size
-        let block_half_height = Block::new()
-            .borders(Borders::ALL)
-            .title(" BigTextSize::HalfHeight ");
         let big_text_half_height = BigTextBuilder::default()
             .font_size(tui_big_text::BigTextSize::HalfHeight)
             .style(Style::new().blue())
@@ -70,16 +62,11 @@ fn render(frame: &mut Frame) -> Result<()> {
                 "~~~~~".into(),
             ])
             .build()?;
-        let text_area = block_half_height.inner(inner_layout_top[1]);
-        frame.render_widget(block_half_height, inner_layout_top[1]);
-        frame.render_widget(big_text_half_height, text_area);
+        frame.render_widget(big_text_half_height, inner_layout_top[1]);
     }
 
     {
         // Draw block showing HalfWidth size
-        let block_half_width = Block::new()
-            .borders(Borders::ALL)
-            .title(" BigTextSize::HalfWidth ");
         let big_text_half_width = BigTextBuilder::default()
             .font_size(tui_big_text::BigTextSize::HalfWidth)
             .style(Style::new().blue())
@@ -89,16 +76,11 @@ fn render(frame: &mut Frame) -> Result<()> {
                 "~~~~~".into(),
             ])
             .build()?;
-        let text_area = block_half_width.inner(inner_layout_bottom[0]);
-        frame.render_widget(block_half_width, inner_layout_bottom[0]);
-        frame.render_widget(big_text_half_width, text_area);
+        frame.render_widget(big_text_half_width, inner_layout_bottom[0]);
     }
 
     {
         // Draw block showing Half size
-        let block_half_size = Block::new()
-            .borders(Borders::ALL)
-            .title(" BigTextSize::Half ");
         let big_text_half_size = BigTextBuilder::default()
             .font_size(tui_big_text::BigTextSize::Half)
             .style(Style::new().blue())
@@ -108,9 +90,7 @@ fn render(frame: &mut Frame) -> Result<()> {
                 "~~~~~".into(),
             ])
             .build()?;
-        let text_area = block_half_size.inner(inner_layout_bottom[1]);
-        frame.render_widget(block_half_size, inner_layout_bottom[1]);
-        frame.render_widget(big_text_half_size, text_area);
+        frame.render_widget(big_text_half_size, inner_layout_bottom[1]);
     }
 
     Ok(())
