@@ -19,6 +19,7 @@
 //!
 //! fn render(frame: &mut Frame) -> Result<()> {
 //!     let big_text = BigTextBuilder::default()
+//!         .pixel_size(PixelSize::Full)
 //!         .style(Style::new().blue())
 //!         .lines(vec![
 //!             "Hello".red().into(),
@@ -40,15 +41,22 @@ use ratatui::{prelude::*, text::StyledGrapheme, widgets::Widget};
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 pub enum PixelSize {
     #[default]
+    /// A pixel from the 8x8 font is represented by a full character cell in the terminal.
     Full,
+    /// A pixel from the 8x8 font is represented by a half (upper/lower) character cell in the terminal.
     HalfHeight,
+    /// A pixel from the 8x8 font is represented by a half (left/right) character cell in the terminal.
     HalfWidth,
+    /// A pixel from the 8x8 font is represented by a quadrant of a character cell in the terminal.
     Half,
 }
 
 /// Displays one or more lines of text using 8x8 pixel characters.
 ///
 /// The text is rendered using the [font8x8](https://crates.io/crates/font8x8) crate.
+///
+/// Using the `pixel_size` method, you can also chose, how 'big' a pixel should be.
+/// Currently a pixel of the 8x8 font can be represented by one full or half (horizontal/vertical/both) character cell of the terminal.
 ///
 /// # Examples
 ///
@@ -57,6 +65,7 @@ pub enum PixelSize {
 /// use tui_big_text::BigTextBuilder;
 ///
 /// BigTextBuilder::default()
+///     .pixel_size(PixelSize::Full)
 ///     .style(Style::new().white())
 ///     .lines(vec![
 ///         "Hello".red().into(),
