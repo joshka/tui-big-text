@@ -5,10 +5,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use ratatui::{
-    prelude::*,
-    widgets::{Block, Borders},
-};
+use ratatui::prelude::*;
 use tui_big_text::BigTextBuilder;
 
 fn main() -> Result<()> {
