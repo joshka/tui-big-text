@@ -88,7 +88,7 @@ fn render(frame: &mut Frame) -> Result<()> {
     {
         // Draw block showing Half size
         let big_text_half_size = BigTextBuilder::default()
-            .pixel_size(tui_big_text::PixelSize::Half)
+            .pixel_size(tui_big_text::PixelSize::Quadrant)
             .style(Style::new().blue())
             .lines(vec![
                 "Hello".red().into(),
