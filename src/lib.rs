@@ -211,7 +211,12 @@ fn get_symbol_half_width(left: u8, right: u8) -> char {
 }
 
 /// Get the correct unicode symbol for 2x2 "pixels"
-fn get_symbol_half_size(top_left: u8, top_right: u8, bottom_left: u8, bottom_right: u8) -> char {
+fn get_symbol_quadrant_size(
+    top_left: u8,
+    top_right: u8,
+    bottom_left: u8,
+    bottom_right: u8,
+) -> char {
     let top_left = if top_left > 0 { 1 } else { 0 };
     let top_right = if top_right > 0 { 1 } else { 0 };
     let bottom_left = if bottom_left > 0 { 1 } else { 0 };
@@ -256,7 +261,7 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, pixel_size: &Pixel
                     let top_right = glyph[row] & (1 << (col + 1));
                     let bottom_left = glyph[row + 1] & (1 << col);
                     let bottom_right = glyph[row + 1] & (1 << (col + 1));
-                    get_symbol_half_size(top_left, top_right, bottom_left, bottom_right)
+                    get_symbol_quadrant_size(top_left, top_right, bottom_left, bottom_right)
                 }
             };
             cell.set_char(symbol_character);
@@ -680,22 +685,22 @@ mod tests {
 
     #[test]
     fn check_half_size_symbols() -> Result<()> {
-        assert_eq!(get_symbol_half_size(0, 0, 0, 0), ' ');
-        assert_eq!(get_symbol_half_size(1, 0, 0, 0), '▘');
-        assert_eq!(get_symbol_half_size(0, 1, 0, 0), '▝');
-        assert_eq!(get_symbol_half_size(1, 1, 0, 0), '▀');
-        assert_eq!(get_symbol_half_size(0, 0, 1, 0), '▖');
-        assert_eq!(get_symbol_half_size(1, 0, 1, 0), '▌');
-        assert_eq!(get_symbol_half_size(0, 1, 1, 0), '▞');
-        assert_eq!(get_symbol_half_size(1, 1, 1, 0), '▛');
-        assert_eq!(get_symbol_half_size(0, 0, 0, 1), '▗');
-        assert_eq!(get_symbol_half_size(1, 0, 0, 1), '▚');
-        assert_eq!(get_symbol_half_size(0, 1, 0, 1), '▐');
-        assert_eq!(get_symbol_half_size(1, 1, 0, 1), '▜');
-        assert_eq!(get_symbol_half_size(0, 0, 1, 1), '▄');
-        assert_eq!(get_symbol_half_size(1, 0, 1, 1), '▙');
-        assert_eq!(get_symbol_half_size(0, 1, 1, 1), '▟');
-        assert_eq!(get_symbol_half_size(1, 1, 1, 1), '█');
+        assert_eq!(get_symbol_quadrant_size(0, 0, 0, 0), ' ');
+        assert_eq!(get_symbol_quadrant_size(1, 0, 0, 0), '▘');
+        assert_eq!(get_symbol_quadrant_size(0, 1, 0, 0), '▝');
+        assert_eq!(get_symbol_quadrant_size(1, 1, 0, 0), '▀');
+        assert_eq!(get_symbol_quadrant_size(0, 0, 1, 0), '▖');
+        assert_eq!(get_symbol_quadrant_size(1, 0, 1, 0), '▌');
+        assert_eq!(get_symbol_quadrant_size(0, 1, 1, 0), '▞');
+        assert_eq!(get_symbol_quadrant_size(1, 1, 1, 0), '▛');
+        assert_eq!(get_symbol_quadrant_size(0, 0, 0, 1), '▗');
+        assert_eq!(get_symbol_quadrant_size(1, 0, 0, 1), '▚');
+        assert_eq!(get_symbol_quadrant_size(0, 1, 0, 1), '▐');
+        assert_eq!(get_symbol_quadrant_size(1, 1, 0, 1), '▜');
+        assert_eq!(get_symbol_quadrant_size(0, 0, 1, 1), '▄');
+        assert_eq!(get_symbol_quadrant_size(1, 0, 1, 1), '▙');
+        assert_eq!(get_symbol_quadrant_size(0, 1, 1, 1), '▟');
+        assert_eq!(get_symbol_quadrant_size(1, 1, 1, 1), '█');
         Ok(())
     }
 
