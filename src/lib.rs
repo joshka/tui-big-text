@@ -222,10 +222,58 @@ fn get_symbol_quadrant_size(
     let bottom_left = if bottom_left > 0 { 1 } else { 0 };
     let bottom_right = if bottom_right > 0 { 1 } else { 0 };
 
+    // Reason for using an array here:
+    // Most symbols are in order in unicode, but some of them that are already part of another
+    // character set and missing in this character set.
+    // Therefore, a direct mapping to `character_index` is not possible
     const QUADRANT_SYMBOLS: [char; 16] = [
         ' ', '▘', '▝', '▀', '▖', '▌', '▞', '▛', '▗', '▚', '▐', '▜', '▄', '▙', '▟', '█',
     ];
-    QUADRANT_SYMBOLS[top_left + (top_right << 1) + (bottom_left << 2) + (bottom_right << 3)]
+    let character_index = top_left + (top_right << 1) + (bottom_left << 2) + (bottom_right << 3);
+
+    QUADRANT_SYMBOLS[character_index]
+}
+
+/// Get the correct unicode symbol for 2x3 "pixels"
+fn get_symbol_sextantant_size(
+    top_left: u8,
+    top_right: u8,
+    middle_left: u8,
+    middle_right: u8,
+    bottom_left: u8,
+    bottom_right: u8,
+) -> char {
+    let top_left = if top_left > 0 { 1 } else { 0 };
+    let top_right = if top_right > 0 { 1 } else { 0 };
+    let middle_left = if middle_left > 0 { 1 } else { 0 };
+    let middle_right = if middle_right > 0 { 1 } else { 0 };
+    let bottom_left = if bottom_left > 0 { 1 } else { 0 };
+    let bottom_right = if bottom_right > 0 { 1 } else { 0 };
+
+    // Reason for using an array here:
+    // Most symbols are in order in unicode, but some of them that are already part of another
+    // character set and missing in this character set.
+    // Therefore, a direct mapping to `character_index` is not possible
+
+    const SEXANT_SYMBOLS: [char; 64] = [
+        ' ', '🬀', '🬁', '🬂', '🬃', '🬄', '🬅', '🬆', '🬇', '🬈', '🬉', '🬊', '🬋', '🬌', '🬍', '🬎', '🬏', '🬐',
+        '🬑', '🬒', '🬓', '🬔', '▌', '🬕', '🬖', '🬗', '🬘', '🬙', '🬚', '🬛', '🬜', '🬝', '🬞', '🬟', '🬠', '🬡',
+        '🬢', '🬣', '🬤', '🬥', '🬦', '🬧', '▐', '🬨', '🬩', '🬪', '🬫', '🬬', '🬭', '🬮', '🬯', '🬰', '🬱', '🬲',
+        '🬳', '🬴', '🬵', '🬶', '🬷', '🬸', '🬹', '🬺', '🬻', '█',
+    ];
+    let character_index = top_left
+        + (top_right << 1)
+        + (middle_left << 2)
+        + (middle_right << 3)
+        + (bottom_left << 4)
+        + (bottom_right << 5);
+
+    SEXANT_SYMBOLS[character_index]
+}
+
+/// Get the correct unicode symbol for 1x3 "pixels"
+fn get_symbol_third_height(top: u8, middle: u8, bottom: u8) -> char {
+    get_symbol_sextantant_size(top, top, middle, middle, bottom, bottom)
 }
 
 /// Render a single 8x8 glyph into a cell by setting the corresponding cells in the buffer.
@@ -684,7 +732,7 @@ mod tests {
     }
 
     #[test]
-    fn check_half_size_symbols() -> Result<()> {
+    fn check_quadrant_size_symbols() -> Result<()> {
         assert_eq!(get_symbol_quadrant_size(0, 0, 0, 0), ' ');
         assert_eq!(get_symbol_quadrant_size(1, 0, 0, 0), '▘');
         assert_eq!(get_symbol_quadrant_size(0, 1, 0, 0), '▝');
@@ -701,6 +749,88 @@ mod tests {
         assert_eq!(get_symbol_quadrant_size(1, 0, 1, 1), '▙');
         assert_eq!(get_symbol_quadrant_size(0, 1, 1, 1), '▟');
         assert_eq!(get_symbol_quadrant_size(1, 1, 1, 1), '█');
+        Ok(())
+    }
+
+    #[test]
+    fn check_sextant_size_symbols() -> Result<()> {
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 0, 0, 0), ' ');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 0, 0, 0), '🬀');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 0, 0, 0), '🬁');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 0, 0, 0), '🬂');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 0, 0, 0), '🬃');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 0, 0, 0), '🬄');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 0, 0, 0), '🬅');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 0, 0, 0), '🬆');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 1, 0, 0), '🬇');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 1, 0, 0), '🬈');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 1, 0, 0), '🬉');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 1, 0, 0), '🬊');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 1, 0, 0), '🬋');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 1, 0, 0), '🬌');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 1, 0, 0), '🬍');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 1, 0, 0), '🬎');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 0, 1, 0), '🬏');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 0, 1, 0), '🬐');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 0, 1, 0), '🬑');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 0, 1, 0), '🬒');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 0, 1, 0), '🬓');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 0, 1, 0), '🬔');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 0, 1, 0), '▌');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 0, 1, 0), '🬕');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 1, 1, 0), '🬖');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 1, 1, 0), '🬗');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 1, 1, 0), '🬘');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 1, 1, 0), '🬙');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 1, 1, 0), '🬚');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 1, 1, 0), '🬛');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 1, 1, 0), '🬜');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 1, 1, 0), '🬝');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 0, 0, 1), '🬞');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 0, 0, 1), '🬟');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 0, 0, 1), '🬠');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 0, 0, 1), '🬡');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 0, 0, 1), '🬢');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 0, 0, 1), '🬣');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 0, 0, 1), '🬤');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 0, 0, 1), '🬥');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 1, 0, 1), '🬦');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 1, 0, 1), '🬧');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 1, 0, 1), '▐');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 1, 0, 1), '🬨');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 1, 0, 1), '🬩');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 1, 0, 1), '🬪');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 1, 0, 1), '🬫');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 1, 0, 1), '🬬');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 0, 1, 1), '🬭');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 0, 1, 1), '🬮');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 0, 1, 1), '🬯');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 0, 1, 1), '🬰');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 0, 1, 1), '🬱');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 0, 1, 1), '🬲');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 0, 1, 1), '🬳');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 0, 1, 1), '🬴');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 0, 1, 1, 1), '🬵');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 0, 1, 1, 1), '🬶');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 0, 1, 1, 1), '🬷');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 0, 1, 1, 1), '🬸');
+        assert_eq!(get_symbol_sextantant_size(0, 0, 1, 1, 1, 1), '🬹');
+        assert_eq!(get_symbol_sextantant_size(1, 0, 1, 1, 1, 1), '🬺');
+        assert_eq!(get_symbol_sextantant_size(0, 1, 1, 1, 1, 1), '🬻');
+        assert_eq!(get_symbol_sextantant_size(1, 1, 1, 1, 1, 1), '█');
+        Ok(())
+    }
+
+    #[test]
+    fn check_third_height_symbols() -> Result<()> {
+        assert_eq!(get_symbol_third_height(0, 0, 0), ' ');
+        assert_eq!(get_symbol_third_height(1, 0, 0), '🬂');
+        assert_eq!(get_symbol_third_height(0, 1, 0), '🬋');
+        assert_eq!(get_symbol_third_height(1, 1, 0), '🬎');
+        assert_eq!(get_symbol_third_height(0, 0, 1), '🬭');
+        assert_eq!(get_symbol_third_height(1, 0, 1), '🬰');
+        assert_eq!(get_symbol_third_height(0, 1, 1), '🬹');
+        assert_eq!(get_symbol_third_height(1, 1, 1), '█');
         Ok(())
     }
 
