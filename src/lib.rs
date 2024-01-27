@@ -901,6 +901,108 @@ mod tests {
     }
 
     #[test]
+    fn render_third_height_single_line() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .pixel_size(PixelSize::ThirdHeight)
+            .lines(vec![Line::from("SingleLine")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 80, 3));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "🬹█🬰🬂🬎🬋   🬭🬰🬰    🬭🬭🬭🬭🬭    🬭🬭🬭 🬭🬭  🬂██     🬭🬭🬭🬭   🬂██🬂     🬭🬰🬰    🬭🬭🬭🬭🬭    🬭🬭🬭🬭   ",
+            "🬭🬰🬂🬎🬹🬹    ██    ██  ██  🬎█🬭🬭██    ██    ██🬋🬋🬎🬎   ██  🬭🬹   ██    ██  ██  ██🬋🬋🬎🬎  ",
+            " 🬂🬂🬂🬂    🬂🬂🬂🬂   🬂🬂  🬂🬂  🬋🬋🬋🬋🬎🬂   🬂🬂🬂🬂    🬂🬂🬂🬂   🬂🬂🬂🬂🬂🬂🬂  🬂🬂🬂🬂   🬂🬂  🬂🬂   🬂🬂🬂🬂   ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_third_height_truncated() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .pixel_size(PixelSize::ThirdHeight)
+            .lines(vec![Line::from("Truncated")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 70, 2));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "🬎🬂██🬂🬎  🬭🬭 🬭🬭🬭  🬭🬭  🬭🬭  🬭🬭🬭🬭🬭    🬭🬭🬭🬭    🬭🬭🬭🬭    🬭🬹█🬭🬭   🬭🬭🬭🬭      🬂██",
+            "  ██     ██🬂 🬎🬎 ██  ██  ██  ██  ██  🬰🬰  🬭🬹🬋🬋██    ██ 🬭  ██🬋🬋🬎🬎  🬹█🬂🬂██",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_third_height_multiple_lines() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .pixel_size(PixelSize::ThirdHeight)
+            .lines(vec![Line::from("Multi"), Line::from("Lines")])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 6));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "██🬹🬭🬹██ 🬭🬭  🬭🬭   🬂██     🬭🬹█🬭🬭   🬭🬰🬰    ",
+            "██🬂🬎🬂██ ██  ██    ██      ██ 🬭    ██    ",
+            "🬂🬂   🬂🬂  🬂🬂🬂 🬂🬂  🬂🬂🬂🬂      🬂🬂    🬂🬂🬂🬂   ",
+            "🬂██🬂     🬭🬰🬰    🬭🬭🬭🬭🬭    🬭🬭🬭🬭    🬭🬭🬭🬭🬭  ",
+            " ██  🬭🬹   ██    ██  ██  ██🬋🬋🬎🬎  🬂🬎🬋🬋🬹🬭  ",
+            "🬂🬂🬂🬂🬂🬂🬂  🬂🬂🬂🬂   🬂🬂  🬂🬂   🬂🬂🬂🬂   🬂🬂🬂🬂🬂   ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_third_height_widget_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .pixel_size(PixelSize::ThirdHeight)
+            .lines(vec![Line::from("Styled")])
+            .style(Style::new().bold())
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 48, 3));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "🬹█🬰🬂🬎🬋   🬭🬹█🬭🬭  🬭🬭  🬭🬭   🬂██     🬭🬭🬭🬭      🬂██  ",
+            "🬭🬰🬂🬎🬹🬹    ██ 🬭  🬎█🬭🬭██    ██    ██🬋🬋🬎🬎  🬹█🬂🬂██  ",
+            " 🬂🬂🬂🬂      🬂🬂   🬋🬋🬋🬋🬎🬂   🬂🬂🬂🬂    🬂🬂🬂🬂    🬂🬂🬂 🬂🬂 ",
+        ]);
+        expected.set_style(Rect::new(0, 0, 48, 3), Style::new().bold());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_third_height_line_style() -> Result<()> {
+        let big_text = BigTextBuilder::default()
+            .pixel_size(PixelSize::ThirdHeight)
+            .lines(vec![
+                Line::from("Red".red()),
+                Line::from("Green".green()),
+                Line::from("Blue".blue()),
+            ])
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 9));
+        big_text.render(buf.area, &mut buf);
+        let mut expected = Buffer::with_lines(vec![
+            "🬂██🬂🬂█🬹  🬭🬭🬭🬭      🬂██                  ",
+            " ██🬂🬎█🬭 ██🬋🬋🬎🬎  🬹█🬂🬂██                  ",
+            "🬂🬂🬂  🬂🬂  🬂🬂🬂🬂    🬂🬂🬂 🬂🬂                 ",
+            "🬭🬹🬎🬂🬂🬎🬋 🬭🬭 🬭🬭🬭   🬭🬭🬭🬭    🬭🬭🬭🬭   🬭🬭🬭🬭🬭   ",
+            "🬎█🬭 🬋🬹🬹  ██🬂 🬎🬎 ██🬋🬋🬎🬎  ██🬋🬋🬎🬎  ██  ██  ",
+            "  🬂🬂🬂🬂🬂 🬂🬂🬂🬂     🬂🬂🬂🬂    🬂🬂🬂🬂   🬂🬂  🬂🬂  ",
+            "🬂██🬂🬂█🬹  🬂██    🬭🬭  🬭🬭   🬭🬭🬭🬭           ",
+            " ██🬂🬂█🬹   ██    ██  ██  ██🬋🬋🬎🬎          ",
+            "🬂🬂🬂🬂🬂🬂   🬂🬂🬂🬂    🬂🬂🬂 🬂🬂  🬂🬂🬂🬂           ",
+        ]);
+        expected.set_style(Rect::new(0, 0, 24, 3), Style::new().red());
+        expected.set_style(Rect::new(0, 3, 40, 3), Style::new().green());
+        expected.set_style(Rect::new(0, 6, 32, 3), Style::new().blue());
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
     fn render_sextant_size_single_line() -> Result<()> {
         let big_text = BigTextBuilder::default()
             .pixel_size(PixelSize::Sextant)
