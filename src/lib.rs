@@ -791,7 +791,7 @@ mod tests {
     }
 
     #[test]
-    fn render_half_size_single_line() -> Result<()> {
+    fn render_quadrant_size_single_line() -> Result<()> {
         let big_text = BigTextBuilder::default()
             .pixel_size(PixelSize::Quadrant)
             .lines(vec![Line::from("SingleLine")])
@@ -809,7 +809,7 @@ mod tests {
     }
 
     #[test]
-    fn render_half_size_truncated() -> Result<()> {
+    fn render_quadrant_size_truncated() -> Result<()> {
         let big_text = BigTextBuilder::default()
             .pixel_size(PixelSize::Quadrant)
             .lines(vec![Line::from("Truncated")])
@@ -826,7 +826,7 @@ mod tests {
     }
 
     #[test]
-    fn render_half_size_multiple_lines() -> Result<()> {
+    fn render_quadrant_size_multiple_lines() -> Result<()> {
         let big_text = BigTextBuilder::default()
             .pixel_size(PixelSize::Quadrant)
             .lines(vec![Line::from("Multi"), Line::from("Lines")])
@@ -848,7 +848,7 @@ mod tests {
     }
 
     #[test]
-    fn render_half_size_widget_style() -> Result<()> {
+    fn render_quadrant_size_widget_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
             .pixel_size(PixelSize::Quadrant)
             .lines(vec![Line::from("Styled")])
@@ -868,7 +868,7 @@ mod tests {
     }
 
     #[test]
-    fn render_half_size_line_style() -> Result<()> {
+    fn render_quadrant_size_line_style() -> Result<()> {
         let big_text = BigTextBuilder::default()
             .pixel_size(PixelSize::Quadrant)
             .lines(vec![
