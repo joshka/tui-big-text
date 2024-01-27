@@ -6,7 +6,7 @@
 
 ## Pixel Size
 
-![Pixel Size](https://vhs.charm.sh/vhs-2vvU0ApVFgURdfAtsfnXsm.gif)
+![Pixel Size](https://vhs.charm.sh/vhs-6iGbM7NgSABCa03nNAWlmT.gif)
 
 ## Stopwatch
 
