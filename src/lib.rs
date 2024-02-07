@@ -289,6 +289,84 @@ fn get_symbol_third_height(top: u8, middle: u8, bottom: u8) -> char {
     get_symbol_sextantant_size(top, top, middle, middle, bottom, bottom)
 }
 
+/// Get a symbol/char that represents the pixels at the given position with the given pixel size
+fn get_symbol_for_position_in_glyph(
+    glyph: &[u8; 8],
+    row: usize,
+    col: i32,
+    pixel_size: &PixelSize,
+) -> char {
+    match pixel_size {
+        PixelSize::Full => match glyph[row] & (1 << col) {
+            0 => ' ',
+            _ => '█',
+        },
+        PixelSize::HalfHeight => {
+            let top = glyph[row] & (1 << col);
+            let bottom = glyph[row + 1] & (1 << col);
+            get_symbol_half_height(top, bottom)
+        }
+        PixelSize::HalfWidth => {
+            let left = glyph[row] & (1 << col);
+            let right = glyph[row] & (1 << (col + 1));
+            get_symbol_half_width(left, right)
+        }
+        PixelSize::Quadrant => {
+            let top_left = glyph[row] & (1 << col);
+            let top_right = glyph[row] & (1 << (col + 1));
+            let bottom_left = glyph[row + 1] & (1 << col);
+            let bottom_right = glyph[row + 1] & (1 << (col + 1));
+            get_symbol_quadrant_size(top_left, top_right, bottom_left, bottom_right)
+        }
+        PixelSize::ThirdHeight => {
+            let top = glyph[row] & (1 << col);
+            let is_middle_avalable = (row + 1) < glyph.len();
+            let middle = if is_middle_avalable {
+                glyph[row + 1] & (1 << col)
+            } else {
+                0
+            };
+            let is_bottom_avalable = (row + 2) < glyph.len();
+            let bottom = if is_bottom_avalable {
+                glyph[row + 2] & (1 << col)
+            } else {
+                0
+            };
+            get_symbol_third_height(top, middle, bottom)
+        }
+        PixelSize::Sextant => {
+            let top_left = glyph[row] & (1 << col);
+            let top_right = glyph[row] & (1 << (col + 1));
+            let is_middle_avalable = (row + 1) < glyph.len();
+            let (middle_left, middle_right) = if is_middle_avalable {
+                (
+                    glyph[row + 1] & (1 << col),
+                    glyph[row + 1] & (1 << (col + 1)),
+                )
+            } else {
+                (0, 0)
+            };
+            let is_bottom_avalable = (row + 2) < glyph.len();
+            let (bottom_left, bottom_right) = if is_bottom_avalable {
+                (
+                    glyph[row + 2] & (1 << col),
+                    glyph[row + 2] & (1 << (col + 1)),
+                )
+            } else {
+                (0, 0)
+            };
+            get_symbol_sextantant_size(
+                top_left,
+                top_right,
+                middle_left,
+                middle_right,
+                bottom_left,
+                bottom_right,
+            )
+        }
+    }
+}
+
 /// Render a single 8x8 glyph into a cell by setting the corresponding cells in the buffer.
 fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, pixel_size: &PixelSize) {
     let (step_x, step_y) = pixels_per_cell(pixel_size);
@@ -302,75 +380,7 @@ fn render_glyph(glyph: [u8; 8], area: Rect, buf: &mut Buffer, pixel_size: &Pixel
             .zip(area.left()..area.right())
         {
             let cell = buf.get_mut(x, y);
-            let symbol_character = match pixel_size {
-                PixelSize::Full => match glyph[row] & (1 << col) {
-                    0 => ' ',
-                    _ => '█',
-                },
-                PixelSize::HalfHeight => {
-                    let top = glyph[row] & (1 << col);
-                    let bottom = glyph[row + 1] & (1 << col);
-                    get_symbol_half_height(top, bottom)
-                }
-                PixelSize::HalfWidth => {
-                    let left = glyph[row] & (1 << col);
-                    let right = glyph[row] & (1 << (col + 1));
-                    get_symbol_half_width(left, right)
-                }
-                PixelSize::Quadrant => {
-                    let top_left = glyph[row] & (1 << col);
-                    let top_right = glyph[row] & (1 << (col + 1));
-                    let bottom_left = glyph[row + 1] & (1 << col);
-                    let bottom_right = glyph[row + 1] & (1 << (col + 1));
-                    get_symbol_quadrant_size(top_left, top_right, bottom_left, bottom_right)
-                }
-                PixelSize::ThirdHeight => {
-                    let top = glyph[row] & (1 << col);
-                    let is_middle_avalable = (row + 1) < glyph.len();
-                    let middle = if is_middle_avalable {
-                        glyph[row + 1] & (1 << col)
-                    } else {
-                        0
-                    };
-                    let is_bottom_avalable = (row + 2) < glyph.len();
-                    let bottom = if is_bottom_avalable {
-                        glyph[row + 2] & (1 << col)
-                    } else {
-                        0
-                    };
-                    get_symbol_third_height(top, middle, bottom)
-                }
-                PixelSize::Sextant => {
-                    let top_left = glyph[row] & (1 << col);
-                    let top_right = glyph[row] & (1 << (col + 1));
-                    let is_middle_avalable = (row + 1) < glyph.len();
-                    let (middle_left, middle_right) = if is_middle_avalable {
-                        (
-                            glyph[row + 1] & (1 << col),
-                            glyph[row + 1] & (1 << (col + 1)),
-                        )
-                    } else {
-                        (0, 0)
-                    };
-                    let is_bottom_avalable = (row + 2) < glyph.len();
-                    let (bottom_left, bottom_right) = if is_bottom_avalable {
-                        (
-                            glyph[row + 2] & (1 << col),
-                            glyph[row + 2] & (1 << (col + 1)),
-                        )
-                    } else {
-                        (0, 0)
-                    };
-                    get_symbol_sextantant_size(
-                        top_left,
-                        top_right,
-                        middle_left,
-                        middle_right,
-                        bottom_left,
-                        bottom_right,
-                    )
-                }
-            };
+            let symbol_character = get_symbol_for_position_in_glyph(&glyph, row, col, pixel_size);
             cell.set_char(symbol_character);
         }
     }
