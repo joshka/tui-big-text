@@ -1216,4 +1216,32 @@ mod tests {
         assert_eq!(get_symbol_third_height(1, 1, 1), '█');
         Ok(())
     }
+
+    #[test]
+    fn check_get_symbol_for_position_in_glyph_third_height_defensive_middle() -> Result<()> {
+        // In this test, we set all pixels of the glyph to 1 (all bytes are u8-max)
+        // We expect that pixels out of the glyph-bounds are not set
+        // Returned character is upper third filled only
+
+        let glyph = [0xFFu8; 8];
+        assert_eq!(
+            get_symbol_for_position_in_glyph(&glyph, 7, 0, &PixelSize::ThirdHeight),
+            '🬂'
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn check_get_symbol_for_position_in_glyph_sextant_size_defensive_middle() -> Result<()> {
+        // In this test, we set all pixels of the glyph to 1 (all bytes are u8-max)
+        // We expect that pixels out of the glyph-bounds are not set
+        // Returned character is upper third filled only
+
+        let glyph = [0xFFu8; 8];
+        assert_eq!(
+            get_symbol_for_position_in_glyph(&glyph, 7, 0, &PixelSize::Sextant),
+            '🬂'
+        );
+        Ok(())
+    }
 }
