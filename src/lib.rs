@@ -63,9 +63,11 @@ pub enum PixelSize {
     HalfWidth,
     /// A pixel from the 8x8 font is represented by a quadrant of a character cell in the terminal.
     Quadrant,
-    /// A pixel from the 8x8 font is represented by a third (top/middle/bottom) of a character cell in the terminal.
+    /// A pixel from the 8x8 font is represented by a third (top/middle/bottom) of a character cell in the terminal.  
+    /// *Note: depending on how the used terminal renders characters, the generated text with this PixelSize might look very strange.*
     ThirdHeight,
-    /// A pixel from the 8x8 font is represented by a sextant of a character cell in the terminal.
+    /// A pixel from the 8x8 font is represented by a sextant of a character cell in the terminal.  
+    /// *Note: depending on how the used terminal renders characters, the generated text with this PixelSize might look very strange.*
     Sextant,
 }
 
