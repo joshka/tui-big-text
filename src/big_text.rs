@@ -70,6 +70,12 @@ pub struct BigText<'a> {
     /// Defaults to `BigTextSize::default()` (=> BigTextSize::Full)
     #[builder(default)]
     pixel_size: PixelSize,
+
+    /// The horizontal alignmnet of the text
+    ///
+    /// Defaults to `Alignment::default()` (=> Alignment::Left)
+    #[builder(default)]
+    alignment: Alignment,
 }
 
 impl BigText<'static> {
@@ -81,7 +87,7 @@ impl BigText<'static> {
 
 impl Widget for BigText<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let layout = layout(area, &self.pixel_size);
+        let layout = layout(area, &self.pixel_size, self.alignment, &self.lines);
         for (line, line_layout) in self.lines.iter().zip(layout) {
             for (g, cell) in line.styled_graphemes(self.style).zip(line_layout) {
                 render_symbol(g, cell, buf, &self.pixel_size);
@@ -92,18 +98,29 @@ impl Widget for BigText<'_> {
 
 /// Chunk the area into as many x*y cells as possible returned as a 2D iterator of `Rect`s
 /// representing the rows of cells. The size of each cell depends on given font size
-fn layout(
+fn layout<'a>(
     area: Rect,
     pixel_size: &PixelSize,
-) -> impl IntoIterator<Item = impl IntoIterator<Item = Rect>> {
+    alignment: Alignment,
+    lines: &'a [Line<'a>],
+) -> impl IntoIterator<Item = impl IntoIterator<Item = Rect>> + 'a {
     let (step_x, step_y) = pixel_size.pixels_per_cell();
     let width = 8_u16.div_ceil(step_x);
     let height = 8_u16.div_ceil(step_y);
 
     (area.top()..area.bottom())
         .step_by(height as usize)
-        .map(move |y| {
-            (area.left()..area.right())
+        .enumerate()
+        .map(move |(i, y)| {
+            let offset = {
+                let big_line_width = lines[i].width() as u16 * width;
+                match alignment {
+                    Alignment::Center => (area.width / 2).saturating_sub(big_line_width / 2),
+                    Alignment::Right => area.width.saturating_sub(big_line_width),
+                    Alignment::Left => 0,
+                }
+            };
+            (area.left() + offset..area.right())
                 .step_by(width as usize)
                 .map(move |x| {
                     let width = min(area.right() - x, width);
@@ -155,15 +172,18 @@ mod tests {
         let lines = vec![Line::from(vec!["Hello".red(), "World".blue()])];
         let style = Style::new().green();
         let pixel_size = PixelSize::default();
+        let alignment = Alignment::Center;
         assert_eq!(
             BigText::builder()
                 .lines(lines.clone())
                 .style(style)
+                .alignment(Alignment::Center)
                 .build()?,
             BigText {
                 lines,
                 style,
-                pixel_size
+                pixel_size,
+                alignment,
             }
         );
         Ok(())
