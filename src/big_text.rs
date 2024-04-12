@@ -96,20 +96,6 @@ impl Widget for BigText<'_> {
     }
 }
 
-fn get_alignment_offset<'a>(
-    area_width: u16,
-    letter_width: u16,
-    alignment: Alignment,
-    line: &'a Line<'a>,
-) -> u16 {
-    let big_line_width = line.width() as u16 * letter_width;
-    match alignment {
-        Alignment::Center => (area_width / 2).saturating_sub(big_line_width / 2),
-        Alignment::Right => area_width.saturating_sub(big_line_width),
-        Alignment::Left => 0,
-    }
-}
-
 /// Chunk the area into as many x*y cells as possible returned as a 2D iterator of `Rect`s
 /// representing the rows of cells. The size of each cell depends on given font size
 fn layout<'a>(
@@ -135,6 +121,20 @@ fn layout<'a>(
                     Rect::new(x, y, width, height)
                 })
         })
+}
+
+fn get_alignment_offset<'a>(
+    area_width: u16,
+    letter_width: u16,
+    alignment: Alignment,
+    line: &'a Line<'a>,
+) -> u16 {
+    let big_line_width = line.width() as u16 * letter_width;
+    match alignment {
+        Alignment::Center => (area_width / 2).saturating_sub(big_line_width / 2),
+        Alignment::Right => area_width.saturating_sub(big_line_width),
+        Alignment::Left => 0,
+    }
 }
 
 /// Render a single grapheme into a cell by looking up the corresponding 8x8 bitmap in the
