@@ -124,9 +124,9 @@ fn layout<'a>(
 
     (area.top()..area.bottom())
         .step_by(height as usize)
-        .enumerate()
-        .map(move |(i, y)| {
-            let offset = get_alignment_offset(area.width, width, alignment, &lines[i]);
+        .zip(lines.iter())
+        .map(move |(y, line)| {
+            let offset = get_alignment_offset(area.width, width, alignment, line);
             (area.left() + offset..area.right())
                 .step_by(width as usize)
                 .map(move |x| {
