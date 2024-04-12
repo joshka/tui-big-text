@@ -896,4 +896,65 @@ mod tests {
         assert_buffer_eq!(buf, expected);
         Ok(())
     }
+
+    #[test]
+    fn render_alignment_left() -> Result<()> {
+        let big_text = BigText::builder()
+            .pixel_size(PixelSize::Quadrant)
+            .lines(vec![Line::from("Left")])
+            .alignment(Alignment::Left)
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 4));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "▜▛      ▗▛▙  ▟                          ",
+            "▐▌  ▟▀▙ ▟▙  ▝█▀                         ",
+            "▐▌▗▌█▀▀ ▐▌   █▗                         ",
+            "▀▀▀▘▝▀▘ ▀▀   ▝▘                         ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_alignment_right() -> Result<()> {
+        let big_text = BigText::builder()
+            .pixel_size(PixelSize::Quadrant)
+            .lines(vec![Line::from("Right")])
+            .alignment(Alignment::Right)
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 4));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "                    ▜▛▜▖ ▀      ▜▌   ▟  ",
+            "                    ▐▙▟▘▝█  ▟▀▟▘▐▙▜▖▝█▀ ",
+            "                    ▐▌▜▖ █  ▜▄█ ▐▌▐▌ █▗ ",
+            "                    ▀▘▝▘▝▀▘ ▄▄▛ ▀▘▝▘ ▝▘ ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn render_alignment_center() -> Result<()> {
+        let big_text = BigText::builder()
+            .pixel_size(PixelSize::Quadrant)
+            .lines(vec![Line::from("Centered"), Line::from("Lines")])
+            .alignment(Alignment::Center)
+            .build()?;
+        let mut buf = Buffer::empty(Rect::new(0, 0, 40, 8));
+        big_text.render(buf.area, &mut buf);
+        let expected = Buffer::with_lines(vec![
+            "    ▗▛▜▖         ▟               ▝█     ",
+            "    █   ▟▀▙ █▀▙ ▝█▀ ▟▀▙ ▜▟▜▖▟▀▙ ▗▄█     ",
+            "    ▜▖▗▖█▀▀ █ █  █▗ █▀▀ ▐▌▝▘█▀▀ █ █     ",
+            "     ▀▀ ▝▀▘ ▀ ▀  ▝▘ ▝▀▘ ▀▀  ▝▀▘ ▝▀▝▘    ",
+            "          ▜▛   ▀                        ",
+            "          ▐▌  ▝█  █▀▙ ▟▀▙ ▟▀▀           ",
+            "          ▐▌▗▌ █  █ █ █▀▀ ▝▀▙           ",
+            "          ▀▀▀▘▝▀▘ ▀ ▀ ▝▀▘ ▀▀▘           ",
+        ]);
+        assert_buffer_eq!(buf, expected);
+        Ok(())
+    }
 }
